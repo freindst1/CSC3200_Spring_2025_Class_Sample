@@ -14,17 +14,24 @@ int main(){
 
     char ch_buffer; //8 bites
 
-    char arr[8];
+    char arr[8];  //you do not need to worry about memory disposol
+
+    char * buf;
+    buf = malloc(8); //allocate 8 bytes starting from buf
+    //any malloc memory, you have to manually release the memmory allocation
+    
 
     //what about &ch_buffer? 64bits
     ssize_t ret;
-    while ((ret = read(fd, arr, 8 * sizeof(char))) > 0){
+    while ((ret = read(fd, buf, 8 * sizeof(char))) > 0){
         //printf("%c", ch_buffer);
-        write(fd2, arr, 8 * sizeof(char));
+        write(fd2, buf, ret);
     }
+    //txt 12345678 | 9
+    //ret 8        | 1
 
     close(fd); 
     close(fd2);
-
+    free(buf);
     return 0;
 }

@@ -4,17 +4,20 @@
 #include <stdio.h>
 
 int main(){
-    int fd;
-    //int open(const char *name, int flags);
-    int fd = open("file1.txt", O_CREAT);
 
-    if (fd == -1){
-        printf("file create errors.");
-    }
+   int fd;
+   fd =  open("a.txt", O_RDONLY);
+   printf("%d", fd);
+   if (fd == -1){
+      perror("open");
+   }
 
-    printf("%d", fd);
-    //power outage happens
-    close(fd);
-    //power outage
-    return 0;
+   if (close(fd) == -1){
+      perror("close");
+   }
+
+
+    fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644); //644 = 110100100 rw-r--r-- 
+
+   return 0;
 }
