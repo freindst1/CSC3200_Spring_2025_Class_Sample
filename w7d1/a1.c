@@ -77,7 +77,7 @@ int main(){
                 //p_buf holds one pixel data on the position (x, y) for each iteration of the loop
                 //we transform the origin bitmap rotating 90 degrees here
                 //p_buf at (x, y) - > pos = 54 + (new_width - y - 1) + x * new_height
-                int pos = 3 * ((height - y) + ((x + 1) * width));
+                int pos = 3 * ((new_width - y - 1) + (x * new_width));
                 //int pos = 3 * ((x))
                 for(int n = 0; n < 3; n++){
                     map[pos + n] = p_buf[n];
@@ -94,17 +94,11 @@ int main(){
         }
     }
 
-    for(int i = 0; i < 3 * height * width; i++){
-        if (checker[i] == 0){
-            //printf("error %d\n", i);
-        }
-    }
 
     fseek(new, 54, SEEK_SET);
     fwrite(map, 3 * new_height * new_width, 1, new);
     fseek(new, 54, SEEK_SET);
     fread(p_buf, 3, 1, new);
-    printf("%d-%d-%d", p_buf[0], p_buf[1], p_buf[2]);
     free(map);
 
     fclose(origin);
