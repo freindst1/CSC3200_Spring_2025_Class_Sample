@@ -6,9 +6,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+//this is an examperiment to show if multiple processes can write to the same file at the same time
 int main(){
     FILE * result;
-    result = fopen("genesis_rebirth.txt", "w+");
+    result = fopen("genesis_rebirth.txt", "w+"); //all processes share the same file as the output
     for(int i = 0; i < 5; i++){
         int pid = fork();
         if (pid == 0){
@@ -30,6 +31,8 @@ int main(){
             //fflush(result);
             fclose(result);
             return 0;
+        } else {
+            sleep(1);
         }
     }
     //sleep(5);
