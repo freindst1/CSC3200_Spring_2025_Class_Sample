@@ -7,8 +7,8 @@
 //threads 0 to 9
 //thread i will count from 10 * i + 1 to 10 * (i + 1)
 
-int total_number = 109;
-int thread_total = 10;
+int total_number = 10000;
+int thread_total = 100;
 int sum = 0;
 
 //let's pass the index i here
@@ -36,10 +36,11 @@ void * task(void * arg){
 void * task2(void *arg){
     int index = *(int *)arg;
     //for thread index == 0, all the number % total_thread == 0
-    for(int i = 1; i <= total_number; i++){
-        if (i % thread_total == index){
-            printf("I am thread %d, and I am counting %d\n", index, i);
-        }
+    int t = index + 1;
+    while (t <= total_number){
+        //printf("I am thread %d, and I am counting %d\n", index, t);
+        sum = sum + t;
+        t = t + thread_total;
     }
 }
 
@@ -58,6 +59,7 @@ int main(){
     for(int i = 0; i < thread_total; i++){
         pthread_join(threads[i], NULL);
     }
+    printf("The sum of total is %d\n", sum);
 
     return 0;
 }
