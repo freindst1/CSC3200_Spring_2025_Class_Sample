@@ -3,9 +3,15 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <time.h>
+#include <sys/time.h>
 
-#define SIZE 20
+#define SIZE 100000
 int a[SIZE];
+
+//we manual decide that the maximu number of threads cannot exceed the cap
+#define TCAP 100
+int thread_total;   //global variable
+pthread_mutex_t lock;
 
 struct range {
     int low;
@@ -91,18 +97,68 @@ void merge_sort(int low, int high){
 
 void * p_merge_sort(void *arg){
     struct range* r = (struct range*)arg;
-    r->low;
+    if (r->low < r->high){
+        if (thread_total >= TCAP){
+            merge_sort(r->low, r->high);
+        } else {
+            int mid = r->low + (r->high - r->low) /2;
+            pthread_t p1, p2;
+            struct range r1;
+            r1.low = r->low;
+            r1.high = mid;
+            pthread_create(&p1, NULL, p_merge_sort, &r1);
+            pthread_mutex_lock(&lock);
+            thread_total++;
+            pthread_mutex_unlock(&lock);
+            struct range r2;
+            r2.low = mid + 1;
+            r2.high = r->high;
+            pthread_create(&p2, NULL, p_merge_sort, &r2);
+            pthread_mutex_lock(&lock);
+            thread_total++;
+            pthread_mutex_unlock(&lock);
+            pthread_join(p1, NULL);
+            pthread_join(p2, NULL);
+            merging(r->low, mid, r->high);
+        }
+    }
+}
 
+void merge_sort_p(int low, int high){
+    struct range r;
+    r.low = low;
+    r.high = high;
+    pthread_t p;
+    pthread_create(&p, NULL, p_merge_sort, &r);
+    pthread_mutex_lock(&lock);
+    thread_total++;
+    pthread_mutex_unlock(&lock);
+    pthread_join(p, NULL);
 }
 
 int main(){
+    pthread_mutex_init(&lock, NULL);
     for(int i = 0; i < SIZE; i++){
         a[i] = i;
     }
+    struct timeval tv0;
+    struct timeval tv1;
+
     srand(time(NULL));
     shuffle();
-    display();
-    merge_sort(0, SIZE - 1);
-    display();
+    //display();
+    gettimeofday(&tv0, 0);
+    //merge_sort(0, SIZE - 1);
+    merge_sort_p(0, SIZE - 1);
+    gettimeofday(&tv1, 0);
+    //display();
+    long elaps = (tv1.tv_usec-tv0.tv_usec);
+    printf("%ld\n", tv0.tv_usec);
+    printf("%ld\n", tv1.tv_usec);
+    printf("%ld\n", tv0.tv_sec);
+    printf("%ld\n", tv1.tv_sec);
+    printf("the total time cost in merge sort is %ld ms\n", elaps);
+    pthread_mutex_destroy(&lock);
     return 0;
 }
+
